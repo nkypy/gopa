@@ -14,16 +14,17 @@ import (
 )
 
 // Opa
+// prefix: 路由前缀，写规则可以省略
 // src: rego 文件内容
 // data: yaml 文件内容
-func Opa(src, data []byte) gin.HandlerFunc {
+func Opa(prefix string, src, data []byte) gin.HandlerFunc {
 	var store map[string]interface{}
 	err := yaml.Unmarshal(data, &store)
 	if err != nil {
 		panic(err)
 	}
 	pname, _, _ := bufio.NewReader(bytes.NewReader(src)).ReadLine()
-	name := strings.TrimSpace(strings.Split(string(pname), " ")[1])
+	name := strings.TrimSpace(strings.Replace(string(pname), "package ", "", 1))
 	r := rego.New(
 		rego.Query("x = data."+name+".allow"),
 		rego.Module("policy.rego", string(src)),
@@ -31,7 +32,7 @@ func Opa(src, data []byte) gin.HandlerFunc {
 	)
 
 	return func(c *gin.Context) {
-		path := c.FullPath()
+		path := strings.Replace(c.FullPath(), prefix, "", 1)
 		if path != "" {
 			ctx := context.TODO()
 			query, err := r.PrepareForEval(ctx)

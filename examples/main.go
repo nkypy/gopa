@@ -17,13 +17,13 @@ var data []byte
 
 func main() {
 	r := gin.Default()
-	r.Use(gopa.Opa(input, data))
-	r.GET("/ping/:id", func(c *gin.Context) {
+	r.Use(gopa.Opa("/v1", input, data))
+	r.GET("/v1/ping/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
-	r.POST("/ping/:id", func(c *gin.Context) {
+	r.POST("/v1/ping/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
