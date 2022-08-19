@@ -14,10 +14,10 @@ import (
 )
 
 // Opa
-// prefix: 路由前缀，写规则可以省略
 // src: rego 文件内容
 // data: yaml 文件内容
-func Opa(prefix string, src, data []byte) gin.HandlerFunc {
+// prefix: 路由前缀，写规则可以省略
+func Opa(src, data []byte, prefix ...string) gin.HandlerFunc {
 	var store map[string]interface{}
 	err := yaml.Unmarshal(data, &store)
 	if err != nil {
@@ -32,8 +32,11 @@ func Opa(prefix string, src, data []byte) gin.HandlerFunc {
 	)
 
 	return func(c *gin.Context) {
-		path := strings.Replace(c.FullPath(), prefix, "", 1)
+		path := c.FullPath()
 		if path != "" {
+			for _, p := range prefix {
+				path = strings.Replace(path, p, "", 1)
+			}
 			ctx := context.TODO()
 			query, err := r.PrepareForEval(ctx)
 			if err != nil {

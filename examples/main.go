@@ -17,7 +17,7 @@ var data []byte
 
 func main() {
 	r := gin.Default()
-	r.Use(gopa.Opa("/v1", input, data))
+	r.Use(gopa.Opa(input, data, "/v1"))
 	r.GET("/v1/ping/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
