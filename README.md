@@ -17,3 +17,9 @@ r.Use(gopa.Opa(input, data, prefix))
 # 新增测试可在 rego 文件中编辑
 opa test -v examples/policy.rego examples/policy.yaml
 ```
+
+## 网页访问
+
+```bash
+http://127.0.0.1:8080/v1/ping/haha?role=admin
+```

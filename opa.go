@@ -46,11 +46,12 @@ func Opa(src, data []byte, prefix ...string) gin.HandlerFunc {
 				})
 				return
 			}
+			// 字段可按照需要自行修改
 			input := map[string]interface{}{
 				"method": c.Request.Method,
 				"path":   path,
+				"role":   c.GetString("role"), // 角色名从Context中获取
 			}
-			input["role"] = c.Query("role")
 			rs, err := query.Eval(ctx, rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {
 				c.AbortWithStatusJSON(http.StatusOK, gin.H{
