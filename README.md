@@ -3,6 +3,9 @@
 ## 使用
 
 ```go
+// 若要修改默认返回或者字段
+// 修改包内 ErrResponse 或者 Params 变量
+//
 // input 为 rego 文件内容
 // data 为 yaml 文件内容
 // prefix 为路由前缀，如：/api/v1，这样写权限时可省略这部分

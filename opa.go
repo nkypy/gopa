@@ -13,6 +13,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var ErrResponse = gin.H{
+	"code": -1,
+	"msg":  "not allowed",
+}
+
+var Params = []string{"role"}
+
 // Opa
 // src: rego 文件内容
 // data: yaml 文件内容
@@ -27,37 +34,32 @@ func Opa(src, data []byte, prefix ...string) gin.HandlerFunc {
 	name := strings.TrimSpace(strings.Replace(string(pname), "package ", "", 1))
 	r := rego.New(
 		rego.Query("x = data."+name+".allow"),
-		rego.Module("policy.rego", string(src)),
+		rego.Module("authz.rego", string(src)),
 		rego.Store(inmem.NewFromObject(store)),
 	)
 
 	return func(c *gin.Context) {
-		path := c.FullPath()
-		if path != "" {
+		endpoint := c.FullPath()
+		if endpoint != "" {
 			for _, p := range prefix {
-				path = strings.Replace(path, p, "", 1)
+				endpoint = strings.Replace(endpoint, p, "", 1)
 			}
 			ctx := context.TODO()
 			query, err := r.PrepareForEval(ctx)
 			if err != nil {
-				c.AbortWithStatusJSON(http.StatusOK, gin.H{
-					"code": -1,
-					"msg":  "policy error: " + err.Error(),
-				})
-				return
+				panic(err)
 			}
 			// 字段可按照需要自行修改
 			input := map[string]interface{}{
-				"method": c.Request.Method,
-				"path":   path,
-				"role":   c.GetString("role"), // 角色名从Context中获取
+				"method":   c.Request.Method,
+				"endpoint": endpoint,
+			}
+			for _, i := range Params {
+				input[i] = c.GetString(i) // 角色名从Context中获取
 			}
 			rs, err := query.Eval(ctx, rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {
-				c.AbortWithStatusJSON(http.StatusOK, gin.H{
-					"code": -1,
-					"msg":  "not allowed",
-				})
+				c.AbortWithStatusJSON(http.StatusOK, ErrResponse)
 				return
 			}
 		}

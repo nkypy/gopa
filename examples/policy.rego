@@ -11,7 +11,7 @@ default allow := false
 
 # 网址白名单
 allow if {
-	input.path in data.whitelist_paths
+	input.endpoint in data.whitelist_paths
 }
 
 # 匹配 API 权限
@@ -23,7 +23,7 @@ allow if {
 	permissions := data.api_role_permissions[r]
 	# for each permission
 	p := permissions[_]
-	p == {"path": input.path, "method": input.method}
+	p == {"endpoint": input.endpoint, "method": input.method}
 }
 
 # 匹配 WEB 权限
@@ -35,7 +35,7 @@ allow if {
 	permissions := data.web_role_permissions[r]
 	# for each permission
 	p := permissions[_]
-	p == input.path
+	p == input.endpoint
 }
 
 
@@ -44,13 +44,13 @@ allow if {
 ####################
 
 test_api_role_permission if {
-	allow with input as {"role": "admin", "path": "/ping/:id", "method": "GET"}
-	not allow with input as {"role": "admin", "path": "/ping/:id", "method": "POST"}
-	allow with input as {"role": "super_admin", "path": "/hello/:id", "method": "POST"}
+	allow with input as {"role": "admin", "endpoint": "/ping/:id", "method": "GET"}
+	not allow with input as {"role": "admin", "endpoint": "/ping/:id", "method": "POST"}
+	allow with input as {"role": "super_admin", "endpoint": "/hello/:id", "method": "POST"}
 }
 
 test_web_role_permission if {
-	allow with input as {"role": "super_admin", "path": "menu:settings"}
-	not allow with input as {"role": "admin", "path": "menu:settings"}
-	allow with input as {"role": "admin", "path": "page:index"}
+	allow with input as {"role": "super_admin", "endpoint": "menu:settings"}
+	not allow with input as {"role": "admin", "endpoint": "menu:settings"}
+	allow with input as {"role": "admin", "endpoint": "page:index"}
 }

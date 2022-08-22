@@ -17,14 +17,14 @@ user_roles:
 # API 角色权限
 api_role_permissions:
   admin_permissions:
-    - path: "/ping/:id"
+    - endpoint: "/ping/:id"
       method: GET
   super_admin_permissions:
-    - path: "/ping/:id"
+    - endpoint: "/ping/:id"
       method: POST
-    - path: "/hello/:id"
+    - endpoint: "/hello/:id"
       method: GET
-    - path: "/hello/:id"
+    - endpoint: "/hello/:id"
       method: POST
 # WEB 角色权限
 web_role_permissions:
