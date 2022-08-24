@@ -63,7 +63,7 @@ pages:
         name: "订单详情"
   - endpoint: "menu:settings"
     name: "系统设置菜单"
-    menus:
+    childs:
       - endpoint: "menu:roles"
         name: "角色信息菜单"
         pages:
@@ -80,11 +80,11 @@ pages:
         pages:
           - endpoint: "page:users/index"
             name: "账号管理页面"
-          - endpoint: "page:roles/detail"
+          - endpoint: "page:users/detail"
             name: "账号管理详情"
-          - endpoint: "page:roles/update"
+          - endpoint: "page:users/update"
             name: "账号管理编辑"
-          - endpoint: "page:roles/delete"
+          - endpoint: "page:users/delete"
             name: "账号管理删除"
 
 # API 白名单列表
