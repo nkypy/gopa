@@ -19,6 +19,8 @@ var ErrResponse = gin.H{
 	"msg":  "not allowed",
 }
 
+var Params = []string{"role", "platform"}
+
 // Opa
 // src: rego 文件内容
 // data: yaml 文件内容
@@ -46,7 +48,9 @@ func Opa(src, data []byte, ch <-chan ([]byte), prefix ...string) gin.HandlerFunc
 		for d := range ch {
 			var role map[string]interface{}
 			if err := yaml.Unmarshal(d, &role); err == nil {
-				store["user_roles"] = role
+				for k := range role {
+					store[k] = role[k]
+				}
 				locker.Lock()
 				r = rego.New(
 					rego.Query("x = data."+name+".allow"),
@@ -72,10 +76,12 @@ func Opa(src, data []byte, ch <-chan ([]byte), prefix ...string) gin.HandlerFunc
 				c.AbortWithStatusJSON(http.StatusOK, ErrResponse)
 				return
 			}
-			// 字段可按照需要自行修改
 			input := map[string]interface{}{
 				"endpoint": c.Request.Method + endpoint,
-				"role":     c.GetString("role"), // 角色名从Context中获取
+			}
+			// 字段可按照需要自行修改
+			for _, i := range Params {
+				input[i] = c.GetString(i) // 从Context中获取
 			}
 			rs, err := query.Eval(ctx, rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {

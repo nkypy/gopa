@@ -27,9 +27,9 @@ opa test -v examples/policy.rego examples/policy.yaml
 
 ```bash
 # 允许
-http://127.0.0.1:8080/v1/orders/1?role=admin
+http://127.0.0.1:8080/v1/orders/1?role=admin&platform=web
 # 不允许
-http://127.0.0.1:8080/v1/users/1?role=admin
+http://127.0.0.1:8080/v1/users/1?role=admin&platform=web
 # 允许
-http://127.0.0.1:8080/v1/users/1?role=super_admin
+http://127.0.0.1:8080/v1/users/1?role=super_admin&platform=web
 ```

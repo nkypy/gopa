@@ -17,6 +17,7 @@ var data []byte
 
 // 角色权限示例
 var role = `
+user_roles:
   super_admin:
     - page:home/index
     - page:orders/index
@@ -33,6 +34,13 @@ var role = `
     - page:home/index
     - page:orders/index
     - page:orders/detail
+
+user_platforms:
+  super_admin:
+    - web
+    - app
+  admin:
+    - web
 `
 
 func main() {
@@ -54,11 +62,11 @@ func main() {
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
-// 测试用，把 Query 里的 role 写入 Context
+// 测试用，把 Query 里的参数 写入 Context
 func Query2Ctx() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role := c.Query("role")
-		c.Set("role", role)
+		c.Set("role", c.Query("role"))
+		c.Set("platform", c.Query("platform"))
 		c.Next()
 	}
 }

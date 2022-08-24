@@ -21,6 +21,14 @@ user_roles:
     - page:orders/index
     - page:orders/detail
 
+# 平台，从数据库加载，或者写死
+user_platforms:
+  super_admin:
+    - web
+    - app
+  admin:
+    - web
+
 # 页面操作对应 API 权限
 permissions:
   page:home/index:
