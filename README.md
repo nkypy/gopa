@@ -8,10 +8,12 @@
 //
 // input 为 rego 文件内容
 // data 为 yaml 文件内容
+// ch 为角色信息，数据库读取，写入 chan，如不传，需在 data 中配置好
 // prefix 为路由前缀，如：/api/v1，这样写权限时可省略这部分
 // prefix 可省略，也可多个
 r := gin.Default()
-r.Use(gopa.Opa(input, data, prefix))
+ch := make(chan []byte, 1)
+r.Use(gopa.Opa(input, data, ch, prefix))
 ```
 
 ## 测试
