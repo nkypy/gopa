@@ -15,16 +15,38 @@ var input []byte
 //go:embed policy.yaml
 var data []byte
 
+// 角色权限示例
+var role = `
+  super_admin:
+    - page:home/index
+    - page:orders/index
+    - page:orders/detail
+    - page:roles/index
+    - page:roles/detail
+    - page:roles/update
+    - page:roles/delete
+    - page:users/index
+    - page:users/detail
+    - page:users/update
+    - page:users/delete
+  admin:
+    - page:home/index
+    - page:orders/index
+    - page:orders/detail
+`
+
 func main() {
+	ch := make(chan []byte, 1)
+	ch <- []byte(role)
 	r := gin.Default()
 	r.Use(Query2Ctx())
-	r.Use(gopa.Opa(input, data, "/v1"))
-	r.GET("/v1/ping/:id", func(c *gin.Context) {
+	r.Use(gopa.Opa(input, data, ch, "/v1"))
+	r.GET("/v1/orders/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": c.Param("id"),
 		})
 	})
-	r.POST("/v1/ping/:id", func(c *gin.Context) {
+	r.GET("/v1/users/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})

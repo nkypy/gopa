@@ -3,8 +3,8 @@
 ## 使用
 
 ```go
-// 若要修改默认返回或者字段
-// 修改包内 ErrResponse 或者 Params 变量
+// 若要修改默认返回
+// 修改包内 ErrResponse
 //
 // input 为 rego 文件内容
 // data 为 yaml 文件内容

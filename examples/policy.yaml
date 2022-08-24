@@ -2,35 +2,93 @@
 # 规则数据
 ####################
 ---
-# 网址白名单列表
-whitelist_paths:
-  - "/login"
-  - "/recover"
-# 角色列表，高级角色下属 API 或者 WEB 权限列表，可包含低级权限角色
-# 列表值对应 api_role_permissions 或 web_role_permissions 里的 key
+# 角色，从数据库加载，或者写死
 user_roles:
   super_admin:
-    - super_admin_permissions
-    - admin_permissions
+    - page:home/index
+    - page:orders/index
+    - page:orders/detail
+    - page:roles/index
+    - page:roles/detail
+    - page:roles/update
+    - page:roles/delete
+    - page:users/index
+    - page:users/detail
+    - page:users/update
+    - page:users/delete
   admin:
-    - admin_permissions
-# API 角色权限
-api_role_permissions:
-  admin_permissions:
-    - endpoint: "/ping/:id"
-      method: GET
-  super_admin_permissions:
-    - endpoint: "/ping/:id"
-      method: POST
-    - endpoint: "/hello/:id"
-      method: GET
-    - endpoint: "/hello/:id"
-      method: POST
-# WEB 角色权限
-web_role_permissions:
-  admin_permissions:
-    - menu:index
-    - page:index
-  super_admin_permissions:
-    - menu:settings
-    - page:settings
+    - page:home/index
+    - page:orders/index
+    - page:orders/detail
+
+# 页面操作对应 API 权限
+permissions:
+  page:home/index:
+    - "GET/"
+    - "GET/order_statistics"
+  page:orders/index:
+    - "GET/orders"
+  page:orders/detail:
+    - "GET/orders/:id"
+  page:roles/index:
+    - "GET/roles"
+  page:roles/detail:
+    - "GET/roles/:id"
+  page:roles/update:
+    - "POST/roles/:id"
+  page:roles/delete:
+    - "DELETE/roles/:id"
+  page:users/index:
+    - "GET/users"
+  page:users/detail:
+    - "GET/users/:id"
+  page:users/update:
+    - "POST/users/:id"
+  page:users/delete:
+    - "DELETE/users/:id"
+
+# 配置写死
+pages:
+  - endpoint: "menu:home"
+    name: "首页菜单"
+    pages:
+      - endpoint: "page:home/index"
+        name: "首页"
+  - endpoint: "menu:orders"
+    name: "订单菜单"
+    pages:
+      - endpoint: "page:orders/index"
+        name: "订单列表"
+      - endpoint: "page:orders/detail"
+        name: "订单详情"
+  - endpoint: "menu:settings"
+    name: "系统设置菜单"
+    menus:
+      - endpoint: "menu:roles"
+        name: "角色信息菜单"
+        pages:
+          - endpoint: "page:roles/index"
+            name: "角色信息页面"
+          - endpoint: "page:roles/detail"
+            name: "角色信息详情"
+          - endpoint: "page:roles/update"
+            name: "角色信息编辑"
+          - endpoint: "page:roles/delete"
+            name: "角色信息删除"
+      - endpoint: "menu:users"
+        name: "账号管理菜单"
+        pages:
+          - endpoint: "page:users/index"
+            name: "账号管理页面"
+          - endpoint: "page:roles/detail"
+            name: "账号管理详情"
+          - endpoint: "page:roles/update"
+            name: "账号管理编辑"
+          - endpoint: "page:roles/delete"
+            name: "账号管理删除"
+
+# API 白名单列表
+whitelist_endpoints:
+  - "GET/login"
+  - "POST/login"
+  - "GET/recover"
