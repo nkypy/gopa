@@ -6,14 +6,13 @@
 // 若要修改默认返回
 // 修改包内 ErrResponse
 //
-// input 为 rego 文件内容
-// data 为 yaml 文件内容
-// ch 为角色信息，数据库读取，写入 chan，如不传，需在 data 中配置好
-// prefix 为路由前缀，如：/api/v1，这样写权限时可省略这部分
-// prefix 可省略，也可多个
+// src: rego 文件内容
+// data: yaml 文件内容
+// path: 数据库路径，若为空，则角色权限在配置文件
+// inUrl: 平台信息是否在 url 中
+// prefix: 路由前缀，写规则可以省略
 r := gin.Default()
-ch := make(chan []byte, 1)
-r.Use(gopa.Opa(input, data, ch, prefix))
+r.Use(gopa.Opa(src, data, "opa.db", true, "/api/v1"))
 ```
 
 ## 测试

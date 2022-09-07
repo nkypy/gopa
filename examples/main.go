@@ -19,28 +19,15 @@ var data []byte
 var role = `
 user_roles:
   super_admin:
-    - page:home/index
-    - page:orders/index
-    - page:orders/detail
-    - page:roles/index
-    - page:roles/detail
-    - page:roles/update
-    - page:roles/delete
-    - page:users/index
-    - page:users/detail
-    - page:users/update
-    - page:users/delete
+    - menu:home
   admin:
-    - page:home/index
-    - page:orders/index
-    - page:orders/detail
+    - menu:home
 
 user_platforms:
   super_admin:
-    - web
-    - app
+    - web_manage
   admin:
-    - web
+    - web_manage
 `
 
 func main() {
@@ -48,13 +35,13 @@ func main() {
 	ch <- []byte(role)
 	r := gin.Default()
 	r.Use(Query2Ctx())
-	r.Use(gopa.Opa(input, data, ch, "/v1"))
-	r.GET("/v1/orders/:id", func(c *gin.Context) {
+	r.Use(gopa.Opa(input, data, "opa.db", true, "/v1"))
+	r.GET("/v1/web/orders/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": c.Param("id"),
 		})
 	})
-	r.GET("/v1/users/:id", func(c *gin.Context) {
+	r.GET("/v1/web/users/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
@@ -66,7 +53,6 @@ func main() {
 func Query2Ctx() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("role", c.Query("role"))
-		c.Set("platform", c.Query("platform"))
 		c.Next()
 	}
 }

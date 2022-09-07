@@ -1,102 +1,112 @@
 ####################
 # 规则数据
 ####################
----
+
+### 以下可写死在配置文件也可从数据库读取
+
 # 角色，从数据库加载，或者写死
 user_roles:
   super_admin:
-    - page:home/index
-    - page:orders/index
-    - page:orders/detail
-    - page:roles/index
-    - page:roles/detail
-    - page:roles/update
-    - page:roles/delete
-    - page:users/index
-    - page:users/detail
-    - page:users/update
-    - page:users/delete
+    - menu:home
   admin:
-    - page:home/index
-    - page:orders/index
-    - page:orders/detail
+    - menu:home
 
 # 平台，从数据库加载，或者写死
 user_platforms:
   super_admin:
-    - web
-    - app
+    - web_manage
   admin:
-    - web
+    - web_manage
+
+### 以下写死在配置文件
 
 # 页面操作对应 API 权限
 permissions:
-  page:home/index:
+  menu:home:
     - "GET/"
     - "GET/order_statistics"
-  page:orders/index:
+  menu:orders:
     - "GET/orders"
-  page:orders/detail:
+  menu:dead:
     - "GET/orders/:id"
-  page:roles/index:
+  menu:mini_program:
     - "GET/roles"
-  page:roles/detail:
+  menu:statistics:
     - "GET/roles/:id"
-  page:roles/update:
+  menu:stats_dead:
     - "POST/roles/:id"
-  page:roles/delete:
+  menu:stats_order:
     - "DELETE/roles/:id"
-  page:users/index:
+  menu:stats_fee:
     - "GET/users"
-  page:users/detail:
+  menu:settings:
     - "GET/users/:id"
-  page:users/update:
+  menu:roles:
     - "POST/users/:id"
-  page:users/delete:
+  menu:users:
+    - "DELETE/users/:id"
+  menu:info:
+    - "DELETE/users/:id"
+  menu:sms:
+    - "DELETE/users/:id"
+  menu:review:
+    - "DELETE/users/:id"
+  menu:notify:
+    - "DELETE/users/:id"
+  menu:coupon:
     - "DELETE/users/:id"
 
-# 配置写死
+# 菜单列表
 pages:
   - endpoint: "menu:home"
-    name: "首页菜单"
-    pages:
-      - endpoint: "page:home/index"
-        name: "首页"
+    name: "首页"
   - endpoint: "menu:orders"
-    name: "订单菜单"
-    pages:
-      - endpoint: "page:orders/index"
-        name: "订单列表"
-      - endpoint: "page:orders/detail"
-        name: "订单详情"
+    name: "订单管理"
+  - endpoint: "menu:dead"
+    name: "逝者列表"
+  - endpoint: "menu:mini_program"
+    name: "小程序用户"
+  - endpoint: "menu:statistics"
+    name: "报表统计"
+    children:
+      - endpoint: "menu:stats_dead"
+        name: "逝者数据"
+      - endpoint: "menu:stats_order"
+        name: "套餐产品数据"
+      - endpoint: "menu:stats_fee"
+        name: "费用数据"
   - endpoint: "menu:settings"
-    name: "系统设置菜单"
-    childs:
+    name: "系统设置"
+    children:
       - endpoint: "menu:roles"
-        name: "角色信息菜单"
-        pages:
-          - endpoint: "page:roles/index"
-            name: "角色信息页面"
-          - endpoint: "page:roles/detail"
-            name: "角色信息详情"
-          - endpoint: "page:roles/update"
-            name: "角色信息编辑"
-          - endpoint: "page:roles/delete"
-            name: "角色信息删除"
+        name: "角色权限"
       - endpoint: "menu:users"
-        name: "账号管理菜单"
-        pages:
-          - endpoint: "page:users/index"
-            name: "账号管理页面"
-          - endpoint: "page:users/detail"
-            name: "账号管理详情"
-          - endpoint: "page:users/update"
-            name: "账号管理编辑"
-          - endpoint: "page:users/delete"
-            name: "账号管理删除"
+        name: "账号管理"
+      - endpoint: "menu:info"
+        name: "信息维护"
+      - endpoint: "menu:sms"
+        name: "短信管理"
+      - endpoint: "menu:review"
+        name: "业务审核"
+      - endpoint: "menu:notify"
+        name: "通知提醒设置"
+      - endpoint: "menu:coupon"
+        name: "代金券设置"
+
+# 平台列表
+platforms:
+  - endpoint: "web_manage"
+    name: "Web后台"
+  - endpoint: "big_screen"
+    name: "大屏系统"
+  - endpoint: "touch_screen"
+    name: "触屏系统"
+  - endpoint: "staff_app"
+    name: "员工APP"
 
 # API 白名单列表
 whitelist_endpoints:
-  - "GET/login"
   - "POST/login"
-  - "GET/recover"
+  - "GET/captcha/new"
+  - "GET/captcha/:id/reload"
+  - "GET/captcha/:id"
