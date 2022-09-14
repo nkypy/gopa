@@ -51,6 +51,7 @@ func Opa(src, data []byte, path string, prefix ...string) gin.HandlerFunc {
 		rego.Module("authz.rego", string(src)),
 		rego.Store(inmem.NewFromObject(store)),
 	)
+	permissionTree = loadPermissionInfo(data)
 	if len(path) != 0 {
 		policyCh = make(chan []byte, 1)
 		db, err = bolt.Open(path, 0666, nil)
@@ -82,8 +83,6 @@ func Opa(src, data []byte, path string, prefix ...string) gin.HandlerFunc {
 			}
 		}()
 	}
-
-	permissionTree = loadPermissionInfo(data)
 
 	var whitelist WhiteList
 	yaml.Unmarshal(data, &whitelist)
