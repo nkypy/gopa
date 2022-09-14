@@ -51,6 +51,13 @@ func updatePermission(c *gin.Context) {
 		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
 		return
 	}
+	old, _ := roleStore[id]
+	if len(permission.Pages) == 0 {
+		permission.Pages = old.Pages
+	}
+	if len(permission.Platforms) == 0 {
+		permission.Platforms = old.Platforms
+	}
 	buf, _ := yaml.Marshal(permission)
 	defaultConfig.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
