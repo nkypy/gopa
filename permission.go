@@ -50,17 +50,13 @@ func findPermission(c *gin.Context) {
 	}
 	id := c.Param("id")
 	var permission RolePermission
-	exist := false
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
 		buf := b.Get([]byte(id))
-		if len(buf) != 0 {
-			exist = true
-		}
 		return yaml.Unmarshal(buf, &permission)
 	})
 	pages, ok := permissionTree.Pages[id]
-	if exist || !ok {
+	if !ok {
 		c.JSON(http.StatusOK, ogs.RspDataOK("", permission))
 		return
 	}
@@ -73,17 +69,13 @@ func FindPermission(id string) (RolePermission, error) {
 	if db == nil {
 		return permission, fmt.Errorf("数据库未初始化")
 	}
-	exist := false
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
 		buf := b.Get([]byte(id))
-		if len(buf) != 0 {
-			exist = true
-		}
 		return yaml.Unmarshal(buf, &permission)
 	})
 	pages, ok := permissionTree.Pages[id]
-	if exist || !ok {
+	if !ok {
 		return permission, nil
 	}
 	permission.Pages = loopPermission(pages)
