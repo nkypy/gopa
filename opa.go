@@ -134,6 +134,10 @@ func loadRolePermission() {
 		}
 		return nil
 	})
+	for k, v := range permissionTree.Pages {
+		permission["user_roles"][k] = loopPermission(v)
+		permission["user_platforms"][k] = loopPermission(permissionTree.Platforms)
+	}
 	buf, _ := yaml.Marshal(permission)
 	policyCh <- buf
 }
