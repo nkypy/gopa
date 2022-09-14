@@ -1,6 +1,7 @@
 package gopa
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -67,6 +68,29 @@ func findPermission(c *gin.Context) {
 	c.JSON(http.StatusOK, ogs.RspDataOK("", perm))
 }
 
+func FindPermission(id string) (RolePermission, error) {
+	var permission RolePermission
+	if db == nil {
+		return permission, fmt.Errorf("数据库未初始化")
+	}
+	exist := false
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BUCKET))
+		buf := b.Get([]byte(id))
+		if len(buf) != 0 {
+			exist = true
+		}
+		return yaml.Unmarshal(buf, &permission)
+	})
+	pages, ok := permissionTree.Pages[id]
+	if exist || !ok {
+		return permission, nil
+	}
+	permission.Pages = loopPermission(pages)
+	permission.Platforms = loopPermission(permissionTree.Platforms)
+	return permission, nil
+}
+
 func updatePermission(c *gin.Context) {
 	if db == nil {
 		c.JSON(http.StatusOK, ogs.RspError(10002, "数据库未初始化"))
@@ -109,4 +133,15 @@ func loadPermissionInfo(input []byte) PermissionConfig {
 	var permission PermissionConfig
 	yaml.Unmarshal(input, &permission)
 	return permission
+}
+
+func loopPermission(node []Node) []string {
+	perms := []string{}
+	for _, i := range node {
+		perms = append(perms, i.Endpoint)
+		if len(i.Children) > 0 {
+			loopPermission(i.Children)
+		}
+	}
+	return perms
 }
