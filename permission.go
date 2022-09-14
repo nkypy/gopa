@@ -48,6 +48,10 @@ func findPermission(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
+	if id == "super_admin" {
+		c.JSON(http.StatusOK, ogs.RspDataOK("", permissionTree))
+		return
+	}
 	var permission RolePermission
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
