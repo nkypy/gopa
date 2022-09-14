@@ -9,10 +9,9 @@
 // src: rego 文件内容
 // data: yaml 文件内容
 // path: 数据库路径，若为空，则角色权限在配置文件
-// inUrl: 平台信息是否在 url 中
 // prefix: 路由前缀，写规则可以省略
 r := gin.Default()
-r.Use(gopa.Opa(src, data, "opa.db", true, "/api/v1"))
+r.Use(gopa.Opa(src, data, "opa.db", "/api/v1"))
 ```
 
 ## 测试

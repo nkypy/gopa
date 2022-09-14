@@ -34,9 +34,8 @@ var db *bolt.DB
 // data: yaml 文件内容
 // ch: 角色信息，数据库读取，写入chan，如不传，需在 data 中配置好
 // path: 数据库路径，若为空，则角色权限在配置文件
-// inUrl: 平台信息是否在 url 中
 // prefix: 路由前缀，写规则可以省略
-func Opa(src, data []byte, path string, inUrl bool, prefix ...string) gin.HandlerFunc {
+func Opa(src, data []byte, path string, prefix ...string) gin.HandlerFunc {
 	var store map[string]interface{}
 	err := yaml.Unmarshal(data, &store)
 	if err != nil {
@@ -90,24 +89,10 @@ func Opa(src, data []byte, path string, inUrl bool, prefix ...string) gin.Handle
 	yaml.Unmarshal(data, &whitelist)
 
 	return func(c *gin.Context) {
-		var platform string
 		endpoint := c.FullPath()
 		if endpoint != "" {
 			for _, p := range prefix {
 				endpoint = strings.Replace(endpoint, p, "", 1)
-			}
-			isWhite := false
-			for _, i := range whitelist.WhitelistEndpoints {
-				if i[strings.Index(i, "/"):] == endpoint {
-					isWhite = true
-				}
-			}
-			if inUrl && !isWhite {
-				idx := strings.Index(endpoint[1:], "/") + 1
-				platform = endpoint[1:idx]
-				endpoint = endpoint[idx:]
-			} else {
-				platform = c.GetString("platform")
 			}
 			locker.RLock()
 			defer locker.RUnlock()
@@ -120,7 +105,7 @@ func Opa(src, data []byte, path string, inUrl bool, prefix ...string) gin.Handle
 			input := map[string]interface{}{
 				"endpoint": c.Request.Method + endpoint,
 				"role":     c.GetString("role"),
-				"platform": platform,
+				"platform": c.GetString("platform"),
 			}
 			rs, err := query.Eval(ctx, rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {

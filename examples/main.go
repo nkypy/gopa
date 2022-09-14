@@ -35,7 +35,7 @@ func main() {
 	ch <- []byte(role)
 	r := gin.Default()
 	r.Use(Query2Ctx())
-	r.Use(gopa.Opa(input, data, "opa.db", true, "/v1"))
+	r.Use(gopa.Opa(input, data, "opa.db", "/v1"))
 	r.GET("/v1/web/orders/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": c.Param("id"),

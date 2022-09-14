@@ -13,10 +13,10 @@ allow if {
 	input.endpoint in data.whitelist_endpoints
 }
 
-allow if {
-	platform_allowed
-	api_allowed
-}
+# allow if {
+# 	platform_allowed
+# 	api_allowed
+# }
 
 # 匹配平台权限
 platform_allowed if {
@@ -25,7 +25,7 @@ platform_allowed if {
 }
 
 # 匹配 API 权限
-api_allowed if {
+allow if {
 	roles := data.user_roles[input.role]
 	r := roles[_]
 	permissions := data.permissions[r]
