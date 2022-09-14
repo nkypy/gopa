@@ -5,7 +5,7 @@
 ### 以下可写死在配置文件也可从数据库读取
 
 # 角色，从数据库加载，或者写死
-user_roles:
+user_pages:
   super_admin:
     - menu:home
   admin:
@@ -21,7 +21,7 @@ user_platforms:
 ### 以下写死在配置文件
 
 # 页面操作对应 API 权限
-permissions:
+page_permissions:
   menu:home:
     - "GET/"
     - "GET/order_statistics"
@@ -56,34 +56,42 @@ permissions:
   menu:coupon:
     - "DELETE/users/:id"
 
+platform_permissions:
+  web_manage:
+    - "GET/order_statistics/"
+  big_screen:
+    - "GET/order_statistics/"
+
 # 菜单列表
 pages:
   super_admin:
     - endpoint: "menu:home"
       name: "首页"
-    - endpoint: "menu:orders"
-      name: "订单管理"
-    - endpoint: "menu:dead"
-      name: "逝者列表"
-    - endpoint: "menu:mini_program"
-      name: "小程序用户"
-    - endpoint: "menu:tenant"
-      name: "租户管理"
-    - endpoint: "menu:settings"
-      name: "系统设置"
+      children:
+        - endpoint: "menu:orders"
+          name: "订单管理"
+        - endpoint: "menu:dead"
+          name: "逝者列表"
+        - endpoint: "menu:mini_program"
+          name: "小程序用户"
+        - endpoint: "menu:tenant"
+          name: "租户管理"
+        - endpoint: "menu:settings"
+          name: "系统设置"
   tenant_admin:
     - endpoint: "menu:home"
       name: "首页"
-    - endpoint: "menu:orders"
-      name: "订单管理"
-    - endpoint: "menu:dead"
-      name: "逝者列表"
-    - endpoint: "menu:mini_program"
-      name: "小程序用户"
-    - endpoint: "menu:statistics"
-      name: "报表统计"
-    - endpoint: "menu:settings"
-      name: "系统设置"
+      children:
+        - endpoint: "menu:orders"
+          name: "订单管理"
+        - endpoint: "menu:dead"
+          name: "逝者列表"
+        - endpoint: "menu:mini_program"
+          name: "小程序用户"
+        - endpoint: "menu:statistics"
+          name: "报表统计"
+        - endpoint: "menu:settings"
+          name: "系统设置"
 
 # 平台列表
 platforms:

@@ -13,23 +13,27 @@ allow if {
 	input.endpoint in data.whitelist_endpoints
 }
 
-# allow if {
-# 	platform_allowed
-# 	api_allowed
-# }
+# 超级管理员允许
+allow if {
+	input.role == "super_admin"
+}
 
 # 匹配平台权限
-platform_allowed if {
+allow if {
 	roles := data.user_platforms[input.role]
-	input.platform in roles
+	r := roles[_]
+	permissions := data.page_permissions[r]
+	p := permissions[_]
+	startswith(p, input.endpoint)
 }
 
 # 匹配 API 权限
 allow if {
-	roles := data.user_roles[input.role]
+	roles := data.user_pages[input.role]
 	r := roles[_]
-	permissions := data.permissions[r]
-	input.endpoint in permissions
+	permissions := data.page_permissions[r]
+	p := permissions[_]
+	startswith(p, input.endpoint)
 }
 
 ####################
@@ -37,13 +41,13 @@ allow if {
 ####################
 
 test_role_permission if {
-	allow with input as {"role": "admin", "endpoint": "GET/orders/:id", "platform": "web"}
-	not allow with input as {"role": "admin", "endpoint": "GET/orders/:id", "platform": "app"}
-	not allow with input as {"role": "admin", "endpoint": "GET/roles/:id", "platform": "web"}
-	allow with input as {"role": "super_admin", "endpoint": "POST/roles/:id", "platform": "app"}
+	allow with input as {"role": "admin", "endpoint": "GET/"}
+	not allow with input as {"role": "admin", "endpoint": "GET/orders/:id"}
+	not allow with input as {"role": "admin", "endpoint": "GET/roles/:id"}
+	allow with input as {"role": "super_admin", "endpoint": "POST/roles/:id"}
 }
 
 test_whitelist_permission if {
-	allow with input as {"endpoint": "GET/login"}
-	not allow with input as {"endpoint": "GET/hello/:id"}
+	allow with input as {"endpoint": "POST/login"}
+	not allow with input as {"endpoint": "GET/users/:id"}
 }
