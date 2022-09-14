@@ -132,7 +132,7 @@ func loopPermission(node []Node) []string {
 	for _, i := range node {
 		perms = append(perms, i.Endpoint)
 		if len(i.Children) > 0 {
-			loopPermission(i.Children)
+			perms = append(perms, loopPermission(i.Children)...)
 		}
 	}
 	return perms
