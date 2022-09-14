@@ -17,6 +17,11 @@ type Node struct {
 	Children []Node `yaml:"children" json:"children"`
 }
 
+type PermissionConfig struct {
+	Pages     map[string][]Node `yaml:"pages" json:"pages"`
+	Platforms []Node            `yaml:"platforms" json:"platforms"`
+}
+
 type PermissionInfo struct {
 	Pages     []Node `yaml:"pages" json:"pages"`
 	Platforms []Node `yaml:"platforms" json:"platforms"`
@@ -30,16 +35,11 @@ type RolePermission struct {
 func PermissionRouter(router *gin.RouterGroup) (r gin.IRoutes) {
 	rg := router.Group("permissions")
 	{
-		rg.GET("", listPermission)          // 所有权限
 		rg.GET("/:id", findPermission)      // 获取角色权限
 		rg.PUT("/:id", updatePermission)    // 更新角色权限
 		rg.DELETE("/:id", deletePermission) // 删除角色权限
 	}
 	return rg
-}
-
-func listPermission(c *gin.Context) {
-	c.JSON(http.StatusOK, ogs.RspDataOK("", permissionTree))
 }
 
 func findPermission(c *gin.Context) {
@@ -48,17 +48,23 @@ func findPermission(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	if id == "super_admin" {
-		c.JSON(http.StatusOK, ogs.RspDataOK("", permissionTree))
-		return
-	}
 	var permission RolePermission
+	exist := false
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
 		buf := b.Get([]byte(id))
+		if len(buf) != 0 {
+			exist = true
+		}
 		return yaml.Unmarshal(buf, &permission)
 	})
-	c.JSON(http.StatusOK, ogs.RspDataOK("", permission))
+	pages, ok := permissionTree.Pages[id]
+	if exist || !ok {
+		c.JSON(http.StatusOK, ogs.RspDataOK("", permission))
+		return
+	}
+	perm := PermissionInfo{Pages: pages, Platforms: permissionTree.Platforms}
+	c.JSON(http.StatusOK, ogs.RspDataOK("", perm))
 }
 
 func updatePermission(c *gin.Context) {
@@ -99,8 +105,8 @@ func deletePermission(c *gin.Context) {
 	c.JSON(http.StatusOK, ogs.RspOK("OK"))
 }
 
-func loadPermissionInfo(input []byte) PermissionInfo {
-	var permission PermissionInfo
+func loadPermissionInfo(input []byte) PermissionConfig {
+	var permission PermissionConfig
 	yaml.Unmarshal(input, &permission)
 	return permission
 }

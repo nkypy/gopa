@@ -26,7 +26,7 @@ type WhiteList struct {
 
 // 更新数据库角色权限后，把 user_roles 和 user_platforms 的 yaml 格式数据传入 chan
 var policyCh chan []byte
-var permissionTree PermissionInfo
+var permissionTree PermissionConfig
 var db *bolt.DB
 
 // Opa
