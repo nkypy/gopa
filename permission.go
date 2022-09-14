@@ -74,6 +74,8 @@ func updatePermission(c *gin.Context) {
 		err := b.Put([]byte(id), buf)
 		return err
 	})
+	// 从数据库加载信息
+	loadRolePermission()
 	c.JSON(http.StatusOK, ogs.RspOK("OK"))
 }
 
@@ -88,6 +90,8 @@ func deletePermission(c *gin.Context) {
 		err := b.Delete([]byte(id))
 		return err
 	})
+	// 从数据库加载信息
+	loadRolePermission()
 	c.JSON(http.StatusOK, ogs.RspOK("OK"))
 }
 
