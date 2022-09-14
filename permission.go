@@ -86,7 +86,7 @@ func updatePermission(c *gin.Context) {
 	})
 	// 从数据库加载信息
 	loadRolePermission()
-	c.JSON(http.StatusOK, ogs.RspOK("OK"))
+	c.JSON(http.StatusOK, ogs.RspOK("设置成功"))
 }
 
 func deletePermission(c *gin.Context) {
@@ -102,7 +102,7 @@ func deletePermission(c *gin.Context) {
 	})
 	// 从数据库加载信息
 	loadRolePermission()
-	c.JSON(http.StatusOK, ogs.RspOK("OK"))
+	c.JSON(http.StatusOK, ogs.RspOK("删除成功"))
 }
 
 func loadPermissionInfo(input []byte) PermissionConfig {
