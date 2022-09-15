@@ -67,6 +67,7 @@ const BUCKET = "permission"
 
 var roleStore = map[string]RolePermission{}
 var permissionTree PermissionConfig
+var endpointText = map[string]string{}
 
 func WithPath(path string) ConfigOption {
 	return func(c *config) {
@@ -206,8 +207,12 @@ func permissionToChan() {
 func loopRoleField(node []Node) []RoleField {
 	fields := []RoleField{}
 	for _, i := range node {
+		endpointText[i.Endpoint] = i.Name
 		fields = append(fields, RoleField{Endpoint: i.Endpoint, Name: i.Name})
 		if len(i.Children) > 0 {
+			for _, j := range i.Children {
+				endpointText[j.Endpoint] = j.Name
+			}
 			fields = append(fields, loopRoleField(i.Children)...)
 		}
 	}

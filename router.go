@@ -9,6 +9,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type UpdatePermissonReq struct {
+	Endpoints []string `yaml:"endpoints" json:"endpoints"`
+}
+
 func PermissionRouter(router *gin.RouterGroup) (r gin.IRoutes) {
 	rg := router.Group("permissions")
 	{
@@ -47,13 +51,17 @@ func updatePermissionPages(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	var permission RolePermission
-	if err := c.ShouldBind(&permission); err != nil {
+	permission := RolePermission{}
+	var req UpdatePermissonReq
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
 		return
 	}
 	old, _ := roleStore[id]
 	permission.Platforms = old.Platforms
+	for _, v := range req.Endpoints {
+		permission.Pages = append(permission.Pages, RoleField{Endpoint: v, Name: endpointText[v]})
+	}
 	buf, _ := yaml.Marshal(permission)
 	defaultConfig.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
@@ -74,13 +82,17 @@ func updatePermissionPlatforms(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	var permission RolePermission
-	if err := c.ShouldBind(&permission); err != nil {
+	permission := RolePermission{}
+	var req UpdatePermissonReq
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
 		return
 	}
 	old, _ := roleStore[id]
 	permission.Pages = old.Pages
+	for _, v := range req.Endpoints {
+		permission.Platforms = append(permission.Platforms, RoleField{Endpoint: v, Name: endpointText[v]})
+	}
 	buf, _ := yaml.Marshal(permission)
 	defaultConfig.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
