@@ -181,6 +181,48 @@ func FindPermission(id string) (RolePermission, error) {
 	return role, nil
 }
 
+func UpdatePermissonPages(id string, endpoints []string) error {
+	permission := RolePermission{}
+	old, _ := roleStore[id]
+	permission.Platforms = old.Platforms
+	for _, v := range endpoints {
+		permission.Pages = append(permission.Pages, RoleField{Endpoint: v, Name: endpointText[v]})
+	}
+	buf, _ := yaml.Marshal(permission)
+	defaultConfig.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BUCKET))
+		err := b.Put([]byte(id), buf)
+		return err
+	})
+	defaultConfig.locker.Lock()
+	roleStore[id] = permission
+	defaultConfig.locker.Unlock()
+	// 从数据库加载信息
+	permissionToChan()
+	return nil
+}
+
+func UpdatePermissionPlatforms(id string, endpoints []string) error {
+	permission := RolePermission{}
+	old, _ := roleStore[id]
+	permission.Pages = old.Pages
+	for _, v := range endpoints {
+		permission.Platforms = append(permission.Platforms, RoleField{Endpoint: v, Name: endpointText[v]})
+	}
+	buf, _ := yaml.Marshal(permission)
+	defaultConfig.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BUCKET))
+		err := b.Put([]byte(id), buf)
+		return err
+	})
+	defaultConfig.locker.Lock()
+	roleStore[id] = permission
+	defaultConfig.locker.Unlock()
+	// 从数据库加载信息
+	permissionToChan()
+	return nil
+}
+
 func permissionToChan() {
 	permission := map[string]map[string][]string{
 		"user_pages":     {},

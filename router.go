@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/xandercheung/ogs-go"
 	bolt "go.etcd.io/bbolt"
-	"gopkg.in/yaml.v3"
 )
 
 type UpdatePermissonReq struct {
@@ -51,28 +50,12 @@ func updatePermissionPages(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	permission := RolePermission{}
 	var req UpdatePermissonReq
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
 		return
 	}
-	old, _ := roleStore[id]
-	permission.Platforms = old.Platforms
-	for _, v := range req.Endpoints {
-		permission.Pages = append(permission.Pages, RoleField{Endpoint: v, Name: endpointText[v]})
-	}
-	buf, _ := yaml.Marshal(permission)
-	defaultConfig.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BUCKET))
-		err := b.Put([]byte(id), buf)
-		return err
-	})
-	defaultConfig.locker.Lock()
-	roleStore[id] = permission
-	defaultConfig.locker.Unlock()
-	// 从数据库加载信息
-	permissionToChan()
+	UpdatePermissonPages(id, req.Endpoints)
 	c.JSON(http.StatusOK, ogs.RspOK("设置成功"))
 }
 
@@ -82,28 +65,12 @@ func updatePermissionPlatforms(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	permission := RolePermission{}
 	var req UpdatePermissonReq
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
 		return
 	}
-	old, _ := roleStore[id]
-	permission.Pages = old.Pages
-	for _, v := range req.Endpoints {
-		permission.Platforms = append(permission.Platforms, RoleField{Endpoint: v, Name: endpointText[v]})
-	}
-	buf, _ := yaml.Marshal(permission)
-	defaultConfig.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(BUCKET))
-		err := b.Put([]byte(id), buf)
-		return err
-	})
-	defaultConfig.locker.Lock()
-	roleStore[id] = permission
-	defaultConfig.locker.Unlock()
-	// 从数据库加载信息
-	permissionToChan()
+	UpdatePermissionPlatforms(id, req.Endpoints)
 	c.JSON(http.StatusOK, ogs.RspOK("设置成功"))
 }
 
