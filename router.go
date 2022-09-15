@@ -13,9 +13,10 @@ func PermissionRouter(router *gin.RouterGroup) (r gin.IRoutes) {
 	rg := router.Group("permissions")
 	{
 		rg.GET("/menus/:id", listPermission)
-		rg.GET("/:id", findPermission)      // 获取角色权限
-		rg.PUT("/:id", updatePermission)    // 更新角色权限
-		rg.DELETE("/:id", deletePermission) // 删除角色权限
+		rg.GET("/:id", findPermission)                      // 获取角色权限
+		rg.PUT("/:id/pages", updatePermissionPages)         // 更新角色权限
+		rg.PUT("/:id/platforms", updatePermissionPlatforms) // 更新角色权限
+		rg.DELETE("/:id", deletePermission)                 // 删除角色权限
 	}
 	return rg
 }
@@ -40,7 +41,7 @@ func findPermission(c *gin.Context) {
 	c.JSON(http.StatusOK, ogs.RspDataOK("", perm))
 }
 
-func updatePermission(c *gin.Context) {
+func updatePermissionPages(c *gin.Context) {
 	if defaultConfig.db == nil {
 		c.JSON(http.StatusOK, ogs.RspError(10002, "数据库未初始化"))
 		return
@@ -52,12 +53,34 @@ func updatePermission(c *gin.Context) {
 		return
 	}
 	old, _ := roleStore[id]
-	if len(permission.Pages) == 0 {
-		permission.Pages = old.Pages
+	permission.Platforms = old.Platforms
+	buf, _ := yaml.Marshal(permission)
+	defaultConfig.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BUCKET))
+		err := b.Put([]byte(id), buf)
+		return err
+	})
+	defaultConfig.locker.Lock()
+	roleStore[id] = permission
+	defaultConfig.locker.Unlock()
+	// 从数据库加载信息
+	permissionToChan()
+	c.JSON(http.StatusOK, ogs.RspOK("设置成功"))
+}
+
+func updatePermissionPlatforms(c *gin.Context) {
+	if defaultConfig.db == nil {
+		c.JSON(http.StatusOK, ogs.RspError(10002, "数据库未初始化"))
+		return
 	}
-	if len(permission.Platforms) == 0 {
-		permission.Platforms = old.Platforms
+	id := c.Param("id")
+	var permission RolePermission
+	if err := c.ShouldBind(&permission); err != nil {
+		c.JSON(http.StatusOK, ogs.RspError(10001, "参数不正确"))
+		return
 	}
+	old, _ := roleStore[id]
+	permission.Pages = old.Pages
 	buf, _ := yaml.Marshal(permission)
 	defaultConfig.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BUCKET))
