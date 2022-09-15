@@ -22,9 +22,9 @@ allow if {
 allow if {
 	roles := data.user_platforms[input.role]
 	r := roles[_]
-	permissions := data.page_permissions[r]
+	permissions := data.platform_permissions[r]
 	p := permissions[_]
-	startswith(p, input.endpoint)
+	startswith(input.endpoint, p)
 }
 
 # 匹配 API 权限
@@ -33,7 +33,7 @@ allow if {
 	r := roles[_]
 	permissions := data.page_permissions[r]
 	p := permissions[_]
-	startswith(p, input.endpoint)
+	startswith(input.endpoint, p)
 }
 
 ####################
@@ -42,9 +42,8 @@ allow if {
 
 test_role_permission if {
 	allow with input as {"role": "admin", "endpoint": "GET/"}
-	not allow with input as {"role": "admin", "endpoint": "GET/orders/:id"}
-	not allow with input as {"role": "admin", "endpoint": "GET/roles/:id"}
 	allow with input as {"role": "super_admin", "endpoint": "POST/roles/:id"}
+	allow with input as {"role": "6", "endpoint": "GET/users/info"}
 }
 
 test_whitelist_permission if {

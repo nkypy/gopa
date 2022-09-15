@@ -75,6 +75,10 @@ func WithPath(path string) ConfigOption {
 		if err != nil {
 			panic(err)
 		}
+		db.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucket([]byte(BUCKET))
+			return err
+		})
 		c.db = db
 	}
 }
@@ -119,10 +123,6 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 	permissionTree = loadPermissionConfig(data)
 	loadFromConfToStore(permissionTree)
 	if defaultConfig.db != nil {
-		defaultConfig.db.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucket([]byte(BUCKET))
-			return err
-		})
 		// 从数据库加载信息
 		permissionToChan()
 		// 新的角色信息传入，重加载

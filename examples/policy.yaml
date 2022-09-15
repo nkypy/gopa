@@ -17,6 +17,8 @@ user_platforms:
     - web_manage
   admin:
     - web_manage
+  6:
+    - big_screen
 
 ### 以下写死在配置文件
 
@@ -60,7 +62,7 @@ platform_permissions:
   web_manage:
     - "GET/order_statistics/"
   big_screen:
-    - "GET/order_statistics/"
+    - "GET/users"
 
 # 菜单列表
 pages:
