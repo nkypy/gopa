@@ -290,7 +290,9 @@ func loadFromConfToStore(conf PermissionConfig) {
 		defaultConfig.locker.Lock()
 		roleStore[k] = RolePermission{
 			Pages: loopRoleField(v),
-			// Platforms: loopRoleField(conf.Platforms),
+			Platforms: []RoleField{
+				{Endpoint: "web_manage", Name: "Web后台"},
+			},
 		}
 		defaultConfig.locker.Unlock()
 	}

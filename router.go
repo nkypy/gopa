@@ -31,7 +31,9 @@ func listPermission(c *gin.Context) {
 		c.JSON(http.StatusOK, defaultConfig.errResp)
 		return
 	}
-	c.JSON(http.StatusOK, ogs.RspDataOK("", PermissionInfo{Pages: pages}))
+	c.JSON(http.StatusOK, ogs.RspDataOK("", PermissionInfo{Pages: pages, Platforms: []Node{
+		{Endpoint: "web_manage", Name: "Web后台"},
+	}}))
 }
 
 func findPermission(c *gin.Context) {
