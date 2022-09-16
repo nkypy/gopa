@@ -289,8 +289,8 @@ func loadFromConfToStore(conf PermissionConfig) {
 	for k, v := range conf.Pages {
 		defaultConfig.locker.Lock()
 		roleStore[k] = RolePermission{
-			Pages:     loopRoleField(v),
-			Platforms: loopRoleField(conf.Platforms),
+			Pages: loopRoleField(v),
+			// Platforms: loopRoleField(conf.Platforms),
 		}
 		defaultConfig.locker.Unlock()
 	}
