@@ -130,10 +130,10 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 			for d := range defaultConfig.ch {
 				var role map[string]interface{}
 				if err := yaml.Unmarshal(d, &role); err == nil {
+					locker.Lock()
 					for k := range role {
 						store[k] = role[k]
 					}
-					locker.Lock()
 					r = rego.New(
 						rego.Query("x = data."+name+".allow"),
 						rego.Module("authz.rego", string(src)),
@@ -288,11 +288,20 @@ func loadFromConfToStore(conf PermissionConfig) {
 	}
 	for k, v := range conf.Pages {
 		defaultConfig.locker.Lock()
-		roleStore[k] = RolePermission{
-			Pages: loopRoleField(v),
-			Platforms: []RoleField{
+		platforms := []RoleField{
+			{Endpoint: "web_manage", Name: "Web后台"},
+		}
+		if k == "tenant_admin" {
+			platforms = []RoleField{
 				{Endpoint: "web_manage", Name: "Web后台"},
-			},
+				{Endpoint: "big_screen", Name: "大屏系统"},
+				{Endpoint: "touch_screen", Name: "触屏系统"},
+				{Endpoint: "staff_app", Name: "员工APP"},
+			}
+		}
+		roleStore[k] = RolePermission{
+			Pages:     loopRoleField(v),
+			Platforms: platforms,
 		}
 		defaultConfig.locker.Unlock()
 	}
