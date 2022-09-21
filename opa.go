@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/storage/inmem"
+	"github.com/sirupsen/logrus"
 	"github.com/xandercheung/ogs-go"
 	bolt "go.etcd.io/bbolt"
 	"gopkg.in/yaml.v3"
@@ -156,6 +157,7 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 			ctx := context.TODO()
 			query, err := r.PrepareForEval(ctx)
 			if err != nil {
+				logrus.Error("PrepareForEval error ", err.Error())
 				c.AbortWithStatusJSON(http.StatusOK, defaultConfig.errResp)
 				return
 			}
@@ -165,6 +167,7 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 			}
 			rs, err := query.Eval(ctx, rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {
+				logrus.Error("Eval error ", err.Error(), "response ", rs)
 				c.AbortWithStatusJSON(http.StatusOK, defaultConfig.errResp)
 				return
 			}
