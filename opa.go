@@ -114,12 +114,11 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 	}
 
 	var locker sync.RWMutex
-	var r *rego.Rego
-	r = rego.New(
+	query, _ := rego.New(
 		rego.Query("x = data."+name+".allow"),
 		rego.Module("authz.rego", string(src)),
 		rego.Store(inmem.NewFromObject(store)),
-	)
+	).PrepareForEval(context.TODO())
 
 	permissionTree = loadPermissionConfig(data)
 	loadFromConfToStore(permissionTree)
@@ -135,11 +134,11 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 					for k := range role {
 						store[k] = role[k]
 					}
-					r = rego.New(
+					query, _ = rego.New(
 						rego.Query("x = data."+name+".allow"),
 						rego.Module("authz.rego", string(src)),
 						rego.Store(inmem.NewFromObject(store)),
-					)
+					).PrepareForEval(context.TODO())
 				}
 				locker.Unlock()
 			}
@@ -154,18 +153,11 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 			}
 			locker.RLock()
 			defer locker.RUnlock()
-			ctx := context.TODO()
-			query, err := r.PrepareForEval(ctx)
-			if err != nil {
-				logrus.Error("PrepareForEval error ", err.Error())
-				c.AbortWithStatusJSON(http.StatusOK, defaultConfig.errResp)
-				return
-			}
 			input := map[string]interface{}{
 				"endpoint": c.Request.Method + endpoint,
 				"role":     c.GetString("role"),
 			}
-			rs, err := query.Eval(ctx, rego.EvalInput(input))
+			rs, err := query.Eval(context.TODO(), rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {
 				logrus.Error("Eval error ", err.Error(), "response ", rs)
 				c.AbortWithStatusJSON(http.StatusOK, defaultConfig.errResp)
