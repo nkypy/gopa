@@ -302,6 +302,7 @@ func loadFromConfToStore(conf PermissionConfig) {
 				{Endpoint: "staff_app", Name: "员工APP"},
 			}
 		}
+		loopRoleField(conf.Platforms)
 		roleStore[k] = RolePermission{
 			Pages:     loopRoleField(v),
 			Platforms: platforms,
