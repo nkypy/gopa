@@ -129,9 +129,9 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 		// 新的角色信息传入，重加载
 		go func() {
 			for d := range defaultConfig.ch {
+				locker.Lock()
 				var role map[string]interface{}
 				if err := yaml.Unmarshal(d, &role); err == nil {
-					locker.Lock()
 					for k := range role {
 						store[k] = role[k]
 					}
@@ -140,8 +140,8 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 						rego.Module("authz.rego", string(src)),
 						rego.Store(inmem.NewFromObject(store)),
 					)
-					locker.Unlock()
 				}
+				locker.Unlock()
 			}
 		}()
 	}
