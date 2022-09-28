@@ -159,7 +159,7 @@ func Opa(src, data []byte, opts ...ConfigOption) gin.HandlerFunc {
 			}
 			rs, err := query.Eval(context.TODO(), rego.EvalInput(input))
 			if err != nil || !rs[0].Bindings["x"].(bool) {
-				logrus.Error("Eval error ", err.Error(), "response ", rs)
+				logrus.Error("Eval error ", err, "response ", rs)
 				c.AbortWithStatusJSON(http.StatusOK, defaultConfig.errResp)
 				return
 			}
