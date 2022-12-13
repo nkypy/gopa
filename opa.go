@@ -287,11 +287,9 @@ func loadFromConfToStore(conf PermissionConfig) {
 			{Endpoint: "web_manage", Name: "Web后台"},
 		}
 		if k == "tenant_admin" {
-			platforms = []RoleField{
-				{Endpoint: "web_manage", Name: "Web后台"},
-				{Endpoint: "big_screen", Name: "大屏系统"},
-				{Endpoint: "touch_screen", Name: "触屏系统"},
-				{Endpoint: "staff_app", Name: "员工APP"},
+			platforms = []RoleField{}
+			for _, m := range permissionTree.Platforms {
+				platforms = append(platforms, RoleField{Endpoint: m.Endpoint, Name: m.Name})
 			}
 		}
 		loopRoleField(conf.Platforms)
