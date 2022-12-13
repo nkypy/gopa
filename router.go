@@ -35,12 +35,7 @@ func listPermission(c *gin.Context) {
 		{Endpoint: "web_manage", Name: "Web后台"},
 	}
 	if id == "tenant_admin" {
-		platforms = []Node{
-			{Endpoint: "web_manage", Name: "Web后台"},
-			{Endpoint: "big_screen", Name: "大屏系统"},
-			{Endpoint: "touch_screen", Name: "触屏系统"},
-			{Endpoint: "staff_app", Name: "员工APP"},
-		}
+		platforms = permissionTree.Platforms
 	}
 	c.JSON(http.StatusOK, ogs.RspDataOK("", PermissionInfo{Pages: pages, Platforms: platforms}))
 }
